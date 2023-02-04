@@ -33,6 +33,45 @@ module API
         end
       end
 
+      def buy
+        buy_params = params.permit(:amount, :use_bonuses, :user_id)
+        @shop = Shop.find(params[:id])
+        @user = User.find_by(id: buy_params[:user_id])
+        @card = Card.find_or_create_by(shop_id: @shop.id, user_id: @user.id)
+        amount = buy_params[:amount].to_f.round
+        use_bonuses = ActiveModel::Type::Boolean.new.cast(buy_params[:use_bonuses])
+        if @user.negative_balance
+          sum_cards = @user.cards.map(&:bonuses).sum
+          if use_bonuses
+            amount_due = (amount - sum_cards)
+            if amount_due < 0
+              amount_due = 0
+              @remaining_bonus = (sum_cards - amount)
+            else
+              @remaining_bonus = 0
+            end
+          else
+            amount_due = amount
+            @remaining_bonus = @card.bonuses + (amount / 100) unless amount < 100
+          end
+        else
+          if use_bonuses
+            amount_due = (amount - @card.bonuses)
+            if amount_due < 0
+              amount_due = 0
+              @remaining_bonus = (@card.bonuses - amount)
+            else
+              @remaining_bonus = 0
+            end
+          else
+            amount_due = amount
+            @remaining_bonus = @card.bonuses + (amount / 100) unless amount < 100
+          end
+        end
+        @card.update(bonuses: @remaining_bonus)
+        render json: {success: true, data: {amount_due: amount_due.round, remaining_bonus: @remaining_bonus.round}}
+      end
+
       private
 
       def shop_params

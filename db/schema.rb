@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_02_03_112651) do
+ActiveRecord::Schema[7.0].define(version: 2023_02_03_131730) do
+  create_table "cards", force: :cascade do |t|
+    t.float "bonuses", default: 0.0
+    t.integer "user_id"
+    t.integer "shop_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shop_id"], name: "index_cards_on_shop_id"
+    t.index ["user_id"], name: "index_cards_on_user_id"
+  end
+
   create_table "shops", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -24,4 +34,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_03_112651) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "cards", "shops"
+  add_foreign_key "cards", "users"
 end

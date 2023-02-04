@@ -2,13 +2,13 @@ module API
   module V1
     class UsersController < ApplicationController
       def show
-        @user = user.find(params[:id])
+        @user = User.find(params[:id])
 
         render json: @user
       end
 
       def update
-        @user = user.find(params[:id])
+        @user = User.find(params[:id])
 
         if @user.update(user_params)
           render json: @user
@@ -18,13 +18,13 @@ module API
       end
 
       def index
-        @users = user.all
+        @users = User.all
 
         render json: @users
       end
 
       def create
-        @user = user.new(user_params)
+        @user = User.new(user_params)
 
         if @user.save
           render json: @user
