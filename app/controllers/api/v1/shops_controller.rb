@@ -19,7 +19,14 @@ module API
 
       def index
         @shops = Shop.all
-
+        @filter = params.permit({ filter: %i[user_id card_id] })
+        if @filter[:filter].present?
+          if @filter[:filter][:user_id].present?
+            @shops = Shop.includes(:users).where(users: {id: @filter[:filter][:user_id]})
+          elsif @filter[:filter][:card_id].present?
+            @shops = Shop.includes(:cards).where(cards: {id: @filter[:filter][:card_id]})
+          end
+        end
         render json: @shops
       end
 

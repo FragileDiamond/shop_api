@@ -9,7 +9,14 @@ module API
 
       def index
         @cards = Card.all
-
+        @filter = params.permit({ filter: %i[user_id shop_id] })
+        if @filter[:filter].present?
+          if @filter[:filter][:user_id].present?
+            @cards = User.find_by(id: @filter[:filter][:user_id]).cards
+          elsif @filter[:filter][:shop_id].present?
+            @cards = Shop.find_by(id: @filter[:filter][:shop_id]).cards
+          end
+        end
         render json: @cards
       end
     end
