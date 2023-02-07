@@ -13,7 +13,7 @@ module API
         if @shop.update(shop_params)
           render json: @shop
         else
-          render json: {name: "Error"}
+          render json: @shop.errors, status: :unprocessable_entity
         end
       end
 
@@ -27,19 +27,19 @@ module API
         @shop = Shop.new(shop_params)
 
         if @shop.save
-          render json: @shop
+          render json: @shop, status: :created
         else
-          render json: {name: "Error"}
+          render json: @shop.errors, status: :unprocessable_entity
         end
       end
 
       def buy
-        buy_params = params.permit(:amount, :use_bonuses, :user_id)
+        buy_params = JSON.parse(request.raw_post)
         @shop = Shop.find(params[:id])
-        @user = User.find_by(id: buy_params[:user_id])
+        @user = User.find_by(id: buy_params['user_id'])
         @card = Card.find_or_create_by(shop_id: @shop.id, user_id: @user.id)
-        amount = buy_params[:amount].to_f.round
-        use_bonuses = ActiveModel::Type::Boolean.new.cast(buy_params[:use_bonuses])
+        amount = buy_params['amount'].to_f.round
+        use_bonuses = ActiveModel::Type::Boolean.new.cast(buy_params['use_bonuses'])
         if @user.negative_balance
           sum_cards = @user.cards.map(&:bonuses).sum
           if use_bonuses
@@ -68,14 +68,15 @@ module API
             @remaining_bonus = @card.bonuses + (amount / 100) unless amount < 100
           end
         end
-        @card.update(bonuses: @remaining_bonus)
-        render json: {success: true, data: {amount_due: amount_due.round, remaining_bonus: @remaining_bonus.round}}
+        amount_due = 1 if buy_params[:amount].nil?
+        @card.update(bonuses: @remaining_bonus.round) unless @remaining_bonus.nil?
+        render json: { success: true, data: {amount_due: amount_due, remaining_bonus: @card.bonuses } }
       end
 
       private
 
       def shop_params
-        params.permit(:name)
+        JSON.parse(request.raw_post)['data']['attributes']
       end
     end
   end

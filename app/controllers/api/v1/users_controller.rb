@@ -10,10 +10,10 @@ module API
       def update
         @user = User.find(params[:id])
 
-        if @user.update(user_params)
+        if @user.update(shop_params)
           render json: @user
         else
-          render json: {name: "Error"}
+          render json: @user.errors, status: :unprocessable_entity
         end
       end
 
@@ -27,16 +27,16 @@ module API
         @user = User.new(user_params)
 
         if @user.save
-          render json: @user
+          render json: @user, status: :created
         else
-          render json: {name: "Error"}
+          render json: @user.errors, status: :unprocessable_entity
         end
       end
 
       private
 
       def user_params
-        params.permit(:email, :negative_balance)
+        JSON.parse(request.raw_post)['data']['attributes']
       end
     end
   end
