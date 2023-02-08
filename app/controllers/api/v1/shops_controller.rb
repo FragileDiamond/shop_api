@@ -1,3 +1,5 @@
+include ErrorSerializer
+
 module API
   module V1
     class ShopsController < ApplicationController
@@ -13,7 +15,7 @@ module API
         if @shop.update(shop_params)
           render json: @shop
         else
-          render json: @shop.errors, status: :unprocessable_entity
+          respond_with_errors(@shop)
         end
       end
 
@@ -36,7 +38,7 @@ module API
         if @shop.save
           render json: @shop, status: :created
         else
-          render json: @shop.errors, status: :unprocessable_entity
+          respond_with_errors(@shop)
         end
       end
 
@@ -75,7 +77,6 @@ module API
             @remaining_bonus = @card.bonuses + (amount / 100) unless amount < 100
           end
         end
-        amount_due = 1 if buy_params[:amount].nil?
         @card.update(bonuses: @remaining_bonus.round) unless @remaining_bonus.nil?
         render json: { success: true, data: {amount_due: amount_due, remaining_bonus: @card.bonuses } }
       end

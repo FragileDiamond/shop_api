@@ -13,7 +13,7 @@ module API
         if @user.update(shop_params)
           render json: @user
         else
-          render json: @user.errors, status: :unprocessable_entity
+          respond_with_errors(@user)
         end
       end
 
@@ -37,7 +37,7 @@ module API
         if @user.save
           render json: @user, status: :created
         else
-          render json: @user.errors, status: :unprocessable_entity
+          respond_with_errors(@user)
         end
       end
 
