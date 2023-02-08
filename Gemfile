@@ -9,7 +9,6 @@ gem "rails", "~> 7.0.4", ">= 7.0.4.2"
 # Use sqlite3 as the database for Active Record
 gem "pg"
 gem 'jsonapi_errors_handler'
-gem 'json-pointer'
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", "~> 5.0"
 gem 'active_model_serializers', '~> 0.10.0'
