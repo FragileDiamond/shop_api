@@ -17,7 +17,7 @@ module API
             @cards = Shop.find_by(id: @filter[:filter][:shop_id]).cards
           end
         end
-        render json: @cards
+        render json: @cards, meta: { stats: { bonuses: { sum: @cards.map(&:bonuses).sum } } }
       end
     end
   end

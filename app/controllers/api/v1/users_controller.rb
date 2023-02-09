@@ -10,7 +10,7 @@ module API
       def update
         @user = User.find(params[:id])
 
-        if @user.update(shop_params)
+        if @user.update(user_params)
           render json: @user
         else
           respond_with_errors(@user)
