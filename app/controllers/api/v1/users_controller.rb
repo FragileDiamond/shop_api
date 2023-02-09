@@ -4,7 +4,7 @@ module API
       def show
         @user = User.find(params[:id])
 
-        render json: @user
+        render json: @user, meta: Hash
       end
 
       def update
@@ -28,7 +28,7 @@ module API
             @users = User.includes(:cards).where(cards: {id: @filter[:filter][:card_id]})
           end
         end
-        render json: @users
+        render json: @users, meta: Hash
       end
 
       def create
